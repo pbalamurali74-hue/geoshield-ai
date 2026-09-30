@@ -1,12 +1,13 @@
 # GEOSHIELD: Flood Exposure & Emergency Decision Intelligence
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-web--tau--navy--45.vercel.app-emerald.svg)](https://web-tau-navy-45.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-geoshield--flood.vercel.app-emerald.svg)](https://geoshield-flood.vercel.app)
 [![Platform: Static Edge](https://img.shields.io/badge/Platform-Static%20Vite%20%2B%20React-emerald.svg)](web/)
 [![Pipeline: Python 3.10+](https://img.shields.io/badge/Pipeline-GeoPandas%20%2B%20Rasterio-blue.svg)](pipeline/)
 [![Data: Copernicus Open Access](https://img.shields.io/badge/Data-Sentinel--1%20SAR-orange.svg)](docs/DATA_SOURCES.md)
 
-**🌐 Live Production App:** [https://web-tau-navy-45.vercel.app](https://web-tau-navy-45.vercel.app) (Zero login, serverless)
+**🌐 Live Production App:** [https://geoshield-flood.vercel.app](https://geoshield-flood.vercel.app)  
+*(Mirror / Direct Alias: [https://geoshield-gis.vercel.app](https://geoshield-gis.vercel.app) — Zero login, serverless edge)*
 
 **GEOIMPathon 1.0 (Problem Statement 4.4: Disaster Exposure Mapping)**  
 *Case Study: Southern Tamil Nadu Extreme Monsoon Deluge (Tirunelveli & Thamirabarani Basin, December 17–18, 2023)*
