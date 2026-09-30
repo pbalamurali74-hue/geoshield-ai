@@ -114,3 +114,18 @@ export interface LayerVisibility {
   preSarRaster: boolean;
   postSarRaster: boolean;
 }
+
+export type BasemapProvider =
+  | 'esri-satellite'
+  | 'carto-light'
+  | 'carto-dark'
+  | 'osm-streets'
+  | 'opentopo'
+  | 'mapbox'
+  | 'maptiler';
+
+export interface MapApiConfig {
+  activeBasemap: BasemapProvider;
+  mapboxToken: string;
+  maptilerKey: string;
+}

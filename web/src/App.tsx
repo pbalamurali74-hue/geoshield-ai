@@ -3,12 +3,13 @@ import maplibregl from 'maplibre-gl';
 import { Header } from './components/Header';
 import { StatsStrip } from './components/StatsStrip';
 import { GuidedTourModal } from './components/GuidedTourModal';
+import { MapApiModal } from './components/MapApiModal';
 import { OverviewPage } from './pages/Overview';
 import { HazardAnalysisPage } from './pages/HazardAnalysis';
 import { ExposurePage } from './pages/Exposure';
 import { PriorityZonesPage } from './pages/PriorityZones';
 import { MethodologyPage } from './pages/Methodology';
-import { ActiveTab, ExposureSummary, HazardMetadata, ZoneData } from './types';
+import { ActiveTab, BasemapProvider, ExposureSummary, HazardMetadata, ZoneData } from './types';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
@@ -17,10 +18,37 @@ export const App: React.FC = () => {
   const [zones, setZones] = useState<ZoneData[]>([]);
   const [selectedZone, setSelectedZone] = useState<ZoneData | null>(null);
   const [isTourOpen, setIsTourOpen] = useState<boolean>(false);
+  const [isApiModalOpen, setIsApiModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Basemap & Commercial API Configuration
+  const [activeBasemap, setActiveBasemap] = useState<BasemapProvider>(() => {
+    return (localStorage.getItem('geoshield_basemap') as BasemapProvider) || 'esri-satellite';
+  });
+  const [mapboxToken, setMapboxToken] = useState<string>(() => {
+    return localStorage.getItem('geoshield_mapbox_token') || (import.meta as any).env?.VITE_MAPBOX_TOKEN || '';
+  });
+  const [maptilerKey, setMaptilerKey] = useState<string>(() => {
+    return localStorage.getItem('geoshield_maptiler_key') || (import.meta as any).env?.VITE_MAPTILER_KEY || '';
+  });
+
   const mapRef = useRef<maplibregl.Map | null>(null);
+
+  const handleSelectBasemap = (provider: BasemapProvider) => {
+    setActiveBasemap(provider);
+    localStorage.setItem('geoshield_basemap', provider);
+  };
+
+  const handleSaveMapboxToken = (token: string) => {
+    setMapboxToken(token);
+    localStorage.setItem('geoshield_mapbox_token', token);
+  };
+
+  const handleSaveMaptilerKey = (key: string) => {
+    setMaptilerKey(key);
+    localStorage.setItem('geoshield_maptiler_key', key);
+  };
 
   // Fetch pipeline outputs on mount
   useEffect(() => {
@@ -89,11 +117,12 @@ export const App: React.FC = () => {
 
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-slate-100 text-slate-900">
-      {/* Header with Navigation and Tour Trigger */}
+      {/* Header with Navigation, Tour Trigger, and Map API Trigger */}
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onStartTour={() => setIsTourOpen(true)}
+        onOpenMapApi={() => setIsApiModalOpen(true)}
       />
 
       {/* Main Viewport Container */}
@@ -106,6 +135,11 @@ export const App: React.FC = () => {
             selectedZone={selectedZone}
             onSelectZone={setSelectedZone}
             mapRef={mapRef}
+            activeBasemap={activeBasemap}
+            onSelectBasemap={handleSelectBasemap}
+            mapboxToken={mapboxToken}
+            maptilerKey={maptilerKey}
+            onOpenApiModal={() => setIsApiModalOpen(true)}
           />
         )}
 
@@ -149,6 +183,18 @@ export const App: React.FC = () => {
         setActiveTab={setActiveTab}
         onSelectZone={setSelectedZone}
         topZone={zones.length > 0 ? zones[0] : null}
+      />
+
+      {/* Map APIs & Developer Endpoints Modal */}
+      <MapApiModal
+        isOpen={isApiModalOpen}
+        onClose={() => setIsApiModalOpen(false)}
+        activeBasemap={activeBasemap}
+        onSelectBasemap={handleSelectBasemap}
+        mapboxToken={mapboxToken}
+        onSaveMapboxToken={handleSaveMapboxToken}
+        maptilerKey={maptilerKey}
+        onSaveMaptilerKey={handleSaveMaptilerKey}
       />
     </div>
   );

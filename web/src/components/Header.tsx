@@ -1,14 +1,15 @@
 import React from 'react';
-import { Shield, Play, Layers, Compass, BarChart3, ListFilter, FileText } from 'lucide-react';
+import { Shield, Play, Layers, Compass, BarChart3, ListFilter, FileText, Globe } from 'lucide-react';
 import { ActiveTab } from '../types';
 
 interface HeaderProps {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
   onStartTour: () => void;
+  onOpenMapApi?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onStartTour }) => {
+export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onStartTour, onOpenMapApi }) => {
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
     { id: 'overview', label: 'Overview', icon: <Compass className="w-4 h-4" /> },
     { id: 'hazard', label: 'Hazard Analysis', icon: <Layers className="w-4 h-4" /> },
@@ -45,6 +46,16 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onStart
             <span className="text-slate-400">SENSOR:</span>
             <span className="text-blue-300">Sentinel-1A C-SAR (Orbit 165 Desc)</span>
           </div>
+          {onOpenMapApi && (
+            <button
+              onClick={onOpenMapApi}
+              className="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded font-sans font-medium transition border border-slate-700 hover:border-slate-600 shadow-sm"
+              title="Configure Map APIs, Basemaps, and REST Endpoints"
+            >
+              <Globe className="w-3.5 h-3.5 text-blue-400" />
+              <span>Map APIs</span>
+            </button>
+          )}
           <button
             onClick={onStartTour}
             className="flex items-center space-x-1.5 bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded font-sans font-medium transition shadow-sm"

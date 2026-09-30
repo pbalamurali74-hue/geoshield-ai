@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
-import { LayerVisibility, PriorityClass, ZoneData } from '../types';
+import { Globe, Key, ChevronDown, Check } from 'lucide-react';
+import { BasemapProvider, LayerVisibility, PriorityClass, ZoneData } from '../types';
 
 interface MapViewProps {
   layers: LayerVisibility;
@@ -9,6 +10,11 @@ interface MapViewProps {
   onSelectZone: (zone: ZoneData | null) => void;
   allZones: ZoneData[];
   mapRefOut?: React.MutableRefObject<maplibregl.Map | null>;
+  activeBasemap: BasemapProvider;
+  onSelectBasemap: (provider: BasemapProvider) => void;
+  mapboxToken: string;
+  maptilerKey: string;
+  onOpenApiModal: () => void;
 }
 
 export const MapView: React.FC<MapViewProps> = ({
@@ -17,11 +23,17 @@ export const MapView: React.FC<MapViewProps> = ({
   selectedZone,
   onSelectZone,
   allZones,
-  mapRefOut
+  mapRefOut,
+  activeBasemap,
+  onSelectBasemap,
+  mapboxToken,
+  maptilerKey,
+  onOpenApiModal
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const hoverPopup = useRef<maplibregl.Popup | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Geographic center of Tirunelveli & Thamirabarani Basin
   const CENTER_COORDS: [number, number] = [77.72, 8.72];
@@ -35,39 +47,142 @@ export const MapView: React.FC<MapViewProps> = ({
     [77.61994930954828, 8.61991394040965]   // Bottom-Left
   ];
 
-  // Initialize Map
+  // Initialize Map with Multi-Basemap Raster Sources
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    // Use Carto Positron vector/raster style (completely free, open-access, zero API key)
-    const cartoStyle = {
-      version: 8 as const,
-      sources: {
-        'carto-positron': {
-          type: 'raster' as const,
-          tiles: [
-            'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-            'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-            'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
-          ],
-          tileSize: 256,
-          attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap'
-        }
+    const baseSources: Record<string, any> = {
+      'source-esri-satellite': {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+        ],
+        tileSize: 256,
+        maxzoom: 19,
+        attribution: '&copy; Esri, Maxar, Earthstar Geographics'
       },
-      layers: [
-        {
-          id: 'carto-base',
-          type: 'raster' as const,
-          source: 'carto-positron',
-          minzoom: 0,
-          maxzoom: 20
-        }
-      ]
+      'source-carto-light': {
+        type: 'raster',
+        tiles: [
+          'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+          'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+          'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+        ],
+        tileSize: 256,
+        attribution: '&copy; CARTO &copy; OpenStreetMap'
+      },
+      'source-carto-dark': {
+        type: 'raster',
+        tiles: [
+          'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+          'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+          'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+        ],
+        tileSize: 256,
+        attribution: '&copy; CARTO &copy; OpenStreetMap'
+      },
+      'source-osm-streets': {
+        type: 'raster',
+        tiles: [
+          'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+        ],
+        tileSize: 256,
+        maxzoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      },
+      'source-opentopo': {
+        type: 'raster',
+        tiles: [
+          'https://a.tile.opentopomap.org/{z}/{x}/{y}.png',
+          'https://b.tile.opentopomap.org/{z}/{x}/{y}.png',
+          'https://c.tile.opentopomap.org/{z}/{x}/{y}.png'
+        ],
+        tileSize: 256,
+        maxzoom: 17,
+        attribution: '&copy; OpenTopoMap &copy; OpenStreetMap'
+      }
     };
+
+    if (mapboxToken) {
+      baseSources['source-mapbox'] = {
+        type: 'raster',
+        tiles: [
+          `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/256/{z}/{x}/{y}@2x?access_token=${mapboxToken}`
+        ],
+        tileSize: 256,
+        attribution: '&copy; Mapbox &copy; OpenStreetMap'
+      };
+    }
+
+    if (maptilerKey) {
+      baseSources['source-maptiler'] = {
+        type: 'raster',
+        tiles: [
+          `https://api.maptiler.com/maps/hybrid/256/{z}/{x}/{y}.jpg?key=${maptilerKey}`
+        ],
+        tileSize: 256,
+        attribution: '&copy; MapTiler &copy; OpenStreetMap'
+      };
+    }
+
+    const baseLayers: any[] = [
+      {
+        id: 'base-esri-satellite',
+        type: 'raster',
+        source: 'source-esri-satellite',
+        layout: { visibility: activeBasemap === 'esri-satellite' ? 'visible' : 'none' }
+      },
+      {
+        id: 'base-carto-light',
+        type: 'raster',
+        source: 'source-carto-light',
+        layout: { visibility: activeBasemap === 'carto-light' ? 'visible' : 'none' }
+      },
+      {
+        id: 'base-carto-dark',
+        type: 'raster',
+        source: 'source-carto-dark',
+        layout: { visibility: activeBasemap === 'carto-dark' ? 'visible' : 'none' }
+      },
+      {
+        id: 'base-osm-streets',
+        type: 'raster',
+        source: 'source-osm-streets',
+        layout: { visibility: activeBasemap === 'osm-streets' ? 'visible' : 'none' }
+      },
+      {
+        id: 'base-opentopo',
+        type: 'raster',
+        source: 'source-opentopo',
+        layout: { visibility: activeBasemap === 'opentopo' ? 'visible' : 'none' }
+      }
+    ];
+
+    if (mapboxToken) {
+      baseLayers.push({
+        id: 'base-mapbox',
+        type: 'raster',
+        source: 'source-mapbox',
+        layout: { visibility: activeBasemap === 'mapbox' ? 'visible' : 'none' }
+      });
+    }
+
+    if (maptilerKey) {
+      baseLayers.push({
+        id: 'base-maptiler',
+        type: 'raster',
+        source: 'source-maptiler',
+        layout: { visibility: activeBasemap === 'maptiler' ? 'visible' : 'none' }
+      });
+    }
 
     const mapInstance = new maplibregl.Map({
       container: mapContainer.current,
-      style: cartoStyle,
+      style: {
+        version: 8 as const,
+        sources: baseSources,
+        layers: baseLayers
+      },
       center: CENTER_COORDS,
       zoom: DEFAULT_ZOOM,
       minZoom: 8,
@@ -286,6 +401,63 @@ export const MapView: React.FC<MapViewProps> = ({
     };
   }, []);
 
+  // Synchronize Basemap visibility when activeBasemap changes
+  useEffect(() => {
+    if (!map.current || !map.current.isStyleLoaded()) return;
+
+    // Dynamically register Mapbox if selected and not yet added
+    if (activeBasemap === 'mapbox' && mapboxToken && !map.current.getSource('source-mapbox')) {
+      map.current.addSource('source-mapbox', {
+        type: 'raster',
+        tiles: [
+          `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/256/{z}/{x}/{y}@2x?access_token=${mapboxToken}`
+        ],
+        tileSize: 256,
+        attribution: '&copy; Mapbox &copy; OpenStreetMap'
+      });
+      map.current.addLayer({
+        id: 'base-mapbox',
+        type: 'raster',
+        source: 'source-mapbox',
+        layout: { visibility: 'none' }
+      }, 'pre-sar-layer');
+    }
+
+    // Dynamically register MapTiler if selected and not yet added
+    if (activeBasemap === 'maptiler' && maptilerKey && !map.current.getSource('source-maptiler')) {
+      map.current.addSource('source-maptiler', {
+        type: 'raster',
+        tiles: [
+          `https://api.maptiler.com/maps/hybrid/256/{z}/{x}/{y}.jpg?key=${maptilerKey}`
+        ],
+        tileSize: 256,
+        attribution: '&copy; MapTiler &copy; OpenStreetMap'
+      });
+      map.current.addLayer({
+        id: 'base-maptiler',
+        type: 'raster',
+        source: 'source-maptiler',
+        layout: { visibility: 'none' }
+      }, 'pre-sar-layer');
+    }
+
+    const allBaseLayerIds = [
+      'base-esri-satellite',
+      'base-carto-light',
+      'base-carto-dark',
+      'base-osm-streets',
+      'base-opentopo',
+      'base-mapbox',
+      'base-maptiler'
+    ];
+
+    allBaseLayerIds.forEach(id => {
+      if (map.current?.getLayer(id)) {
+        map.current.setLayoutProperty(id, 'visibility', id === `base-${activeBasemap}` ? 'visible' : 'none');
+      }
+    });
+  }, [activeBasemap, mapboxToken, maptilerKey]);
+
   // Update layer visibility dynamically
   useEffect(() => {
     if (!map.current || !map.current.isStyleLoaded()) return;
@@ -320,9 +492,98 @@ export const MapView: React.FC<MapViewProps> = ({
     }
   }, [selectedZone]);
 
+  const basemapOptions: { id: BasemapProvider; label: string; icon: string; badge: string }[] = [
+    { id: 'esri-satellite', label: 'ESRI Satellite', icon: '🛰️', badge: 'High-Res' },
+    { id: 'carto-light', label: 'Carto Light', icon: '☀️', badge: 'Minimal' },
+    { id: 'carto-dark', label: 'Carto Dark', icon: '🌙', badge: 'Emergency' },
+    { id: 'osm-streets', label: 'OpenStreetMap', icon: '🗺️', badge: 'Streets' },
+    { id: 'opentopo', label: 'OpenTopo (Terrain)', icon: '⛰️', badge: 'Relief' },
+    { id: 'mapbox', label: 'Mapbox Satellite', icon: '⚡', badge: mapboxToken ? 'Active' : 'Key Req' },
+    { id: 'maptiler', label: 'MapTiler Hybrid', icon: '🌐', badge: maptilerKey ? 'Active' : 'Key Req' },
+  ];
+
+  const currentOption = basemapOptions.find(b => b.id === activeBasemap) || basemapOptions[0];
+
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full select-none">
       <div ref={mapContainer} className="w-full h-full" />
+
+      {/* Floating Basemap API Switcher Widget */}
+      <div className="absolute top-3 left-3 z-10 flex items-center space-x-2">
+        {/* Basemap Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="flex items-center space-x-1.5 bg-white/95 hover:bg-white text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md backdrop-blur border border-slate-200 hover:border-slate-300 transition"
+          >
+            <Globe className="w-3.5 h-3.5 text-blue-600" />
+            <span>Basemap: {currentOption.icon} {currentOption.label}</span>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+          </button>
+
+          {isDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1.5 w-60 bg-white rounded-lg shadow-xl border border-slate-200 py-1.5 z-20 animate-in fade-in zoom-in-95 duration-100">
+              <div className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                Switch Map Basemap API
+              </div>
+
+              {basemapOptions.map(option => (
+                <button
+                  key={option.id}
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    if ((option.id === 'mapbox' && !mapboxToken) || (option.id === 'maptiler' && !maptilerKey)) {
+                      onOpenApiModal();
+                    } else {
+                      onSelectBasemap(option.id);
+                    }
+                  }}
+                  className={`w-full px-3 py-2 text-left flex items-center justify-between text-xs transition ${
+                    activeBasemap === option.id
+                      ? 'bg-blue-50 text-blue-800 font-semibold'
+                      : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <span>{option.icon}</span>
+                    <span>{option.label}</span>
+                  </div>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                      {option.badge}
+                    </span>
+                    {activeBasemap === option.id && (
+                      <Check className="w-3.5 h-3.5 text-blue-600" />
+                    )}
+                  </div>
+                </button>
+              ))}
+
+              <div className="border-t border-slate-100 mt-1 pt-1 px-2">
+                <button
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    onOpenApiModal();
+                  }}
+                  className="w-full text-center py-1.5 text-[11px] font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50/50 rounded transition"
+                >
+                  Configure API Keys & Endpoints &rarr;
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Developer Endpoints & Keys Button */}
+        <button
+          onClick={onOpenApiModal}
+          className="flex items-center space-x-1.5 bg-white/95 hover:bg-white text-slate-700 hover:text-blue-700 text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-md backdrop-blur border border-slate-200 hover:border-slate-300 transition"
+          title="Configure Commercial API Keys & Copy GIS GeoJSON Endpoints"
+        >
+          <Key className="w-3.5 h-3.5 text-amber-500" />
+          <span className="hidden sm:inline">Map APIs & Endpoints</span>
+        </button>
+      </div>
     </div>
   );
 };

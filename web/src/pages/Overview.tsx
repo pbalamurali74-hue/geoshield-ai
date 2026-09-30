@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { MapView } from '../components/MapView';
 import { Sidebar } from '../components/Sidebar';
 import { ZoneDetailPanel } from '../components/ZoneDetailPanel';
-import { ExposureSummary, HazardMetadata, LayerVisibility, PriorityClass, ZoneData } from '../types';
+import { BasemapProvider, ExposureSummary, HazardMetadata, LayerVisibility, PriorityClass, ZoneData } from '../types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { ChevronUp, ChevronDown, BarChart2, Layers } from 'lucide-react';
 import maplibregl from 'maplibre-gl';
@@ -14,6 +14,11 @@ interface OverviewPageProps {
   selectedZone: ZoneData | null;
   onSelectZone: (zone: ZoneData | null) => void;
   mapRef: React.MutableRefObject<maplibregl.Map | null>;
+  activeBasemap: BasemapProvider;
+  onSelectBasemap: (provider: BasemapProvider) => void;
+  mapboxToken: string;
+  maptilerKey: string;
+  onOpenApiModal: () => void;
 }
 
 export const OverviewPage: React.FC<OverviewPageProps> = ({
@@ -22,7 +27,12 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
   zones,
   selectedZone,
   onSelectZone,
-  mapRef
+  mapRef,
+  activeBasemap,
+  onSelectBasemap,
+  mapboxToken,
+  maptilerKey,
+  onOpenApiModal
 }) => {
   const [layers, setLayers] = useState<LayerVisibility>({
     priorityGrid: true,
@@ -138,6 +148,11 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
             onSelectZone={onSelectZone}
             allZones={zones}
             mapRefOut={mapRef}
+            activeBasemap={activeBasemap}
+            onSelectBasemap={onSelectBasemap}
+            mapboxToken={mapboxToken}
+            maptilerKey={maptilerKey}
+            onOpenApiModal={onOpenApiModal}
           />
 
           {/* Collapsible Analytics Tray Button */}
