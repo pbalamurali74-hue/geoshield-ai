@@ -1,0 +1,12 @@
+{
+  "name": "geoshield",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GEOSHIELD: Flood Exposure & Emergency Decision Intelligence",
+  "scripts": {
+    "dev": "npm --prefix web run dev",
+    "build": "npm --prefix web run build",
+    "preview": "npm --prefix web run preview",
+    "pipeline": "python3 -m pipeline.run_pipeline"
+  }
+}

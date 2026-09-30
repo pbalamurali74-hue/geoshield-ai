@@ -1,0 +1,32 @@
+{
+  "study_area": "Tirunelveli & Thamirabarani Basin, Tamil Nadu",
+  "event_name": "Southern Tamil Nadu Extreme Monsoon Deluge",
+  "event_date": "December 17-18, 2023",
+  "sensor": "Sentinel-1A C-band SAR (5.405 GHz)",
+  "polarization": "VV",
+  "relative_orbit": 165,
+  "pass_direction": "DESCENDING",
+  "pre_acquisition": "2023-12-05T00:41:22Z",
+  "post_acquisition": "2023-12-17T00:41:22Z",
+  "processing_method": "SAR Amplitude Change Detection with Dual-Thresholding & Terrain/GSW Masking",
+  "thresholds": {
+    "post_water_max_db": -15.0,
+    "backscatter_delta_drop_db": -2.5,
+    "max_slope_deg": 5.0,
+    "jrc_permanent_water_pct": 50.0,
+    "min_connected_patch_m2": 1000.0
+  },
+  "statistics": {
+    "total_study_area_km2": 487.92,
+    "total_flooded_area_km2": 3.35,
+    "inundation_percentage": 0.69,
+    "polygon_count": 881,
+    "mean_backscatter_drop_db": -5.68
+  },
+  "raster_bounds_wgs84": [
+    77.61994930954828,
+    8.61991394040965,
+    77.82000652370476,
+    8.820060619487881
+  ]
+}

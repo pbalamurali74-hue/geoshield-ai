@@ -1,0 +1,171 @@
+{
+  "kpis": {
+    "total_flooded_area_km2": 3.35,
+    "total_buildings_exposed": 272,
+    "total_roads_exposed_km": 17.78,
+    "total_agricultural_exposed_km2": 1.73,
+    "total_population_exposed_proxy": 1034,
+    "priority_zones_count": {
+      "critical": 2,
+      "high": 4,
+      "moderate": 13,
+      "low": 487,
+      "total_active": 475
+    }
+  },
+  "land_use_exposure_km2": {
+    "Tree Cover": 0.483,
+    "Shrubland": 0.358,
+    "Grassland": 0.14,
+    "Cropland": 1.734,
+    "Built-up": 0.588,
+    "Bare Soil": 0.005,
+    "Permanent Water": 0.029,
+    "Wetland": 0.001
+  },
+  "index_weights": {
+    "flood_overlap": 0.25,
+    "building_exposure": 0.25,
+    "road_exposure": 0.2,
+    "population_proxy": 0.15,
+    "agriculture_cropland": 0.15
+  },
+  "priority_thresholds": {
+    "CRITICAL": ">= 60.0",
+    "HIGH": "25.0 - 59.9",
+    "MODERATE": "10.0 - 24.9",
+    "LOW": "< 10.0"
+  },
+  "sensitivity_analysis": {
+    "description": "Comparison of Top 10 zone rankings between Baseline, Infrastructure-heavy, and Agriculture-heavy weighting schemes",
+    "top10_comparison": [
+      {
+        "zone_id": "ZONE_R14_C11",
+        "locality": "Melapalayam & Drainage Plain (Sector 14-11)",
+        "baseline_rank": 1,
+        "baseline_score": 69.5,
+        "infra_rank": 1,
+        "infra_score": 82.8,
+        "agri_rank": 4,
+        "agri_score": 46.1,
+        "rank_shift_infra": 0,
+        "rank_shift_agri": -3
+      },
+      {
+        "zone_id": "ZONE_R14_C10",
+        "locality": "Melapalayam & Drainage Plain (Sector 14-10)",
+        "baseline_rank": 2,
+        "baseline_score": 63.2,
+        "infra_rank": 2,
+        "infra_score": 62.9,
+        "agri_rank": 1,
+        "agri_score": 65.8,
+        "rank_shift_infra": 0,
+        "rank_shift_agri": 1
+      },
+      {
+        "zone_id": "ZONE_R09_C15",
+        "locality": "Vannarpettai & River Corridor (Sector 9-15)",
+        "baseline_rank": 3,
+        "baseline_score": 29.0,
+        "infra_rank": 5,
+        "infra_score": 15.5,
+        "agri_rank": 3,
+        "agri_score": 51.1,
+        "rank_shift_infra": -2,
+        "rank_shift_agri": 0
+      },
+      {
+        "zone_id": "ZONE_R10_C09",
+        "locality": "Tirunelveli Urban Core (Sector 10-9)",
+        "baseline_rank": 4,
+        "baseline_score": 28.5,
+        "infra_rank": 6,
+        "infra_score": 13.5,
+        "agri_rank": 2,
+        "agri_score": 53.4,
+        "rank_shift_infra": -2,
+        "rank_shift_agri": 2
+      },
+      {
+        "zone_id": "ZONE_R09_C14",
+        "locality": "Vannarpettai & River Corridor (Sector 9-14)",
+        "baseline_rank": 5,
+        "baseline_score": 27.9,
+        "infra_rank": 3,
+        "infra_score": 22.4,
+        "agri_rank": 6,
+        "agri_score": 38.0,
+        "rank_shift_infra": 2,
+        "rank_shift_agri": -1
+      },
+      {
+        "zone_id": "ZONE_R13_C07",
+        "locality": "West Highland & Catchment (Sector 13-7)",
+        "baseline_rank": 6,
+        "baseline_score": 25.2,
+        "infra_rank": 8,
+        "infra_score": 12.7,
+        "agri_rank": 5,
+        "agri_score": 46.1,
+        "rank_shift_infra": -2,
+        "rank_shift_agri": 1
+      },
+      {
+        "zone_id": "ZONE_R15_C10",
+        "locality": "Melapalayam & Drainage Plain (Sector 15-10)",
+        "baseline_rank": 7,
+        "baseline_score": 18.8,
+        "infra_rank": 4,
+        "infra_score": 18.1,
+        "agri_rank": 15,
+        "agri_score": 19.1,
+        "rank_shift_infra": 3,
+        "rank_shift_agri": -8
+      },
+      {
+        "zone_id": "ZONE_R13_C08",
+        "locality": "Tirunelveli Urban Core (Sector 13-8)",
+        "baseline_rank": 8,
+        "baseline_score": 17.9,
+        "infra_rank": 14,
+        "infra_score": 8.7,
+        "agri_rank": 7,
+        "agri_score": 33.1,
+        "rank_shift_infra": -6,
+        "rank_shift_agri": 1
+      },
+      {
+        "zone_id": "ZONE_R15_C09",
+        "locality": "Melapalayam & Drainage Plain (Sector 15-9)",
+        "baseline_rank": 9,
+        "baseline_score": 16.9,
+        "infra_rank": 9,
+        "infra_score": 11.6,
+        "agri_rank": 10,
+        "agri_score": 23.0,
+        "rank_shift_infra": 0,
+        "rank_shift_agri": -1
+      },
+      {
+        "zone_id": "ZONE_R12_C09",
+        "locality": "Tirunelveli Urban Core (Sector 12-9)",
+        "baseline_rank": 10,
+        "baseline_score": 15.9,
+        "infra_rank": 13,
+        "infra_score": 8.8,
+        "agri_rank": 8,
+        "agri_score": 24.2,
+        "rank_shift_infra": -3,
+        "rank_shift_agri": 2
+      }
+    ]
+  },
+  "reconciliation_status": {
+    "verified": true,
+    "double_counting_prevented": true,
+    "building_assignment_rule": "Geometric Centroid Within 1:1 Mapping",
+    "road_assignment_rule": "Zonal Geometric Line Slicing",
+    "flood_assignment_rule": "Raster Pixel Zonal Matrix Sum"
+  }
+}
